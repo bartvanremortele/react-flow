@@ -12,4 +12,6 @@ declare module '*.svg' {
   export { svgComponent as ReactComponent };
 }
 
+declare module 'use-pan-and-zoom';
+
 declare var __REACT_FLOW_VERSION__: string;

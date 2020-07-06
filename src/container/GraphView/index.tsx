@@ -8,7 +8,8 @@ import EdgeRenderer from '../EdgeRenderer';
 import UserSelection from '../../components/UserSelection';
 import NodesSelection from '../../components/NodesSelection';
 import useKeyPress from '../../hooks/useKeyPress';
-import useD3Zoom from '../../hooks/useD3Zoom';
+// import useD3Zoom from '../../hooks/useD3Zoom';
+import usePanZoom from 'use-pan-and-zoom';
 import useGlobalKeyHandler from '../../hooks/useGlobalKeyHandler';
 import useElementUpdater from '../../hooks/useElementUpdater';
 import { getDimensions } from '../../utils';
@@ -53,7 +54,7 @@ const GraphView = memo(
   ({
     nodeTypes,
     edgeTypes,
-    onMove,
+    // onMove,
     onLoad,
     onElementClick,
     onNodeDragStart,
@@ -74,14 +75,14 @@ const GraphView = memo(
     maxZoom,
     defaultZoom,
   }: GraphViewProps) => {
-    const zoomPane = useRef<HTMLDivElement>(null);
+    // const zoomPane = useRef<HTMLDivElement>(null);
     const rendererNode = useRef<HTMLDivElement>(null);
     const width = useStoreState((s) => s.width);
     const height = useStoreState((s) => s.height);
     const d3Initialised = useStoreState((s) => s.d3Initialised);
     const nodesSelectionActive = useStoreState((s) => s.nodesSelectionActive);
     const updateSize = useStoreActions((actions) => actions.updateSize);
-    const setNodesSelection = useStoreActions((actions) => actions.setNodesSelection);
+    // const setNodesSelection = useStoreActions((actions) => actions.setNodesSelection);
     const setOnConnect = useStoreActions((a) => a.setOnConnect);
     const setSnapGrid = useStoreActions((actions) => actions.setSnapGrid);
     const setInteractive = useStoreActions((actions) => actions.setInteractive);
@@ -93,7 +94,7 @@ const GraphView = memo(
     const selectionKeyPressed = useKeyPress(selectionKeyCode);
     const rendererClasses = classnames('react-flow__renderer', { 'is-interactive': isInteractive });
 
-    const onZoomPaneClick = () => setNodesSelection({ isActive: false });
+    // const onZoomPaneClick = () => setNodesSelection({ isActive: false });
 
     const updateDimensions = () => {
       if (!rendererNode.current) {
@@ -142,7 +143,9 @@ const GraphView = memo(
       };
     }, []);
 
-    useD3Zoom({ zoomPane, onMove, selectionKeyPressed });
+    // useD3Zoom({ zoomPane, onMove, selectionKeyPressed });
+
+    const { transform, panZoomHandlers, setContainer } = usePanZoom({ zoomSensitivity: 0.01 });
 
     useEffect(() => {
       if (d3Initialised && onLoad) {
@@ -173,25 +176,34 @@ const GraphView = memo(
 
     return (
       <div className={rendererClasses} ref={rendererNode}>
-        <NodeRenderer
-          nodeTypes={nodeTypes}
-          onElementClick={onElementClick}
-          onNodeDragStop={onNodeDragStop}
-          onNodeDragStart={onNodeDragStart}
-          onlyRenderVisibleNodes={onlyRenderVisibleNodes}
-          selectNodesOnDrag={selectNodesOnDrag}
-        />
-        <EdgeRenderer
-          width={width}
-          height={height}
-          edgeTypes={edgeTypes}
-          onElementClick={onElementClick}
-          connectionLineType={connectionLineType}
-          connectionLineStyle={connectionLineStyle}
-        />
+        <div
+          ref={(el) => setContainer(el)}
+          {...panZoomHandlers}
+          style={{ position: 'absolute', width: '100%', height: '100%' }}
+        >
+          <div style={{ transform, position: 'absolute', width: '100%', height: '100%' }}>
+            <NodeRenderer
+              nodeTypes={nodeTypes}
+              onElementClick={onElementClick}
+              onNodeDragStop={onNodeDragStop}
+              onNodeDragStart={onNodeDragStart}
+              onlyRenderVisibleNodes={onlyRenderVisibleNodes}
+              selectNodesOnDrag={selectNodesOnDrag}
+            />
+            <EdgeRenderer
+              width={width}
+              height={height}
+              edgeTypes={edgeTypes}
+              onElementClick={onElementClick}
+              connectionLineType={connectionLineType}
+              connectionLineStyle={connectionLineStyle}
+            />
+          </div>
+        </div>
+
         <UserSelection selectionKeyPressed={selectionKeyPressed} isInteractive={isInteractive} />
         {nodesSelectionActive && <NodesSelection />}
-        <div className="react-flow__zoompane" onClick={onZoomPaneClick} ref={zoomPane} />
+        {/* <div className="react-flow__zoompane" onClick={onZoomPaneClick} ref={zoomPane} /> */}
       </div>
     );
   }
