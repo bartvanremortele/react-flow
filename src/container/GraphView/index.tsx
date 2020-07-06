@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, memo, CSSProperties } from 'react';
 import classnames from 'classnames';
 import { ResizeObserver } from 'resize-observer';
+import { TransformWrapper, TransformComponent } from 'react-zoom-pan-pinch';
 
 import { useStoreState, useStoreActions } from '../../store/hooks';
 import NodeRenderer from '../NodeRenderer';
@@ -8,11 +9,11 @@ import EdgeRenderer from '../EdgeRenderer';
 import UserSelection from '../../components/UserSelection';
 import NodesSelection from '../../components/NodesSelection';
 import useKeyPress from '../../hooks/useKeyPress';
-import useD3Zoom from '../../hooks/useD3Zoom';
+// import useD3Zoom from '../../hooks/useD3Zoom';
 import useGlobalKeyHandler from '../../hooks/useGlobalKeyHandler';
 import useElementUpdater from '../../hooks/useElementUpdater';
 import { getDimensions } from '../../utils';
-import { project, getElements } from '../../utils/graph';
+// import { project, getElements } from '../../utils/graph';
 import {
   Elements,
   NodeTypesType,
@@ -53,8 +54,8 @@ const GraphView = memo(
   ({
     nodeTypes,
     edgeTypes,
-    onMove,
-    onLoad,
+    // onMove,
+    // onLoad,
     onElementClick,
     onNodeDragStart,
     onNodeDragStop,
@@ -74,26 +75,28 @@ const GraphView = memo(
     maxZoom,
     defaultZoom,
   }: GraphViewProps) => {
-    const zoomPane = useRef<HTMLDivElement>(null);
+    // const zoomPane = useRef<HTMLDivElement>(null);
+
     const rendererNode = useRef<HTMLDivElement>(null);
     const width = useStoreState((s) => s.width);
     const height = useStoreState((s) => s.height);
-    const d3Initialised = useStoreState((s) => s.d3Initialised);
+    // const d3Initialised = useStoreState((s) => s.d3Initialised);
     const nodesSelectionActive = useStoreState((s) => s.nodesSelectionActive);
+    const isDragging = useStoreState((s) => s.isDragging);
     const updateSize = useStoreActions((actions) => actions.updateSize);
-    const setNodesSelection = useStoreActions((actions) => actions.setNodesSelection);
+    // const setNodesSelection = useStoreActions((actions) => actions.setNodesSelection);
     const setOnConnect = useStoreActions((a) => a.setOnConnect);
     const setSnapGrid = useStoreActions((actions) => actions.setSnapGrid);
     const setInteractive = useStoreActions((actions) => actions.setInteractive);
     const updateTransform = useStoreActions((actions) => actions.updateTransform);
     const setMinMaxZoom = useStoreActions((actions) => actions.setMinMaxZoom);
-    const fitView = useStoreActions((actions) => actions.fitView);
-    const zoom = useStoreActions((actions) => actions.zoom);
+    // const fitView = useStoreActions((actions) => actions.fitView);
+    // const zoom = useStoreActions((actions) => actions.zoom);
 
     const selectionKeyPressed = useKeyPress(selectionKeyCode);
     const rendererClasses = classnames('react-flow__renderer', { 'is-interactive': isInteractive });
 
-    const onZoomPaneClick = () => setNodesSelection({ isActive: false });
+    // const onZoomPaneClick = () => setNodesSelection({ isActive: false });
 
     const updateDimensions = () => {
       if (!rendererNode.current) {
@@ -142,19 +145,19 @@ const GraphView = memo(
       };
     }, []);
 
-    useD3Zoom({ zoomPane, onMove, selectionKeyPressed });
+    // useD3Zoom({ zoomPane, onMove, selectionKeyPressed });
 
-    useEffect(() => {
-      if (d3Initialised && onLoad) {
-        onLoad({
-          fitView: (params = { padding: 0.1 }) => fitView(params),
-          zoomIn: () => zoom(0.2),
-          zoomOut: () => zoom(-0.2),
-          project,
-          getElements,
-        });
-      }
-    }, [d3Initialised, onLoad]);
+    // useEffect(() => {
+    //   if (d3Initialised && onLoad) {
+    //     onLoad({
+    //       fitView: (params = { padding: 0.1 }) => fitView(params),
+    //       zoomIn: () => zoom(0.2),
+    //       zoomOut: () => zoom(-0.2),
+    //       project,
+    //       getElements,
+    //     });
+    //   }
+    // }, [d3Initialised, onLoad]);
 
     useEffect(() => {
       setSnapGrid({ snapToGrid, snapGrid });
@@ -171,27 +174,73 @@ const GraphView = memo(
     useGlobalKeyHandler({ onElementsRemove, deleteKeyCode });
     useElementUpdater(elements);
 
+    const t = {
+      type: true,
+      limitToBounds: false,
+      panningEnabled: true,
+      transformEnabled: true,
+      pinchEnabled: true,
+      limitToWrapper: false,
+      disabled: false,
+      dbClickEnabled: true,
+      lockAxisX: false,
+      lockAxisY: false,
+      velocityEqualToMove: true,
+      enableWheel: true,
+      enableTouchPadPinch: true,
+      enableVelocity: true,
+      limitsOnWheel: false,
+    };
+
+    console.log('isPanningEnabled', !isDragging);
+
     return (
       <div className={rendererClasses} ref={rendererNode}>
-        <NodeRenderer
-          nodeTypes={nodeTypes}
-          onElementClick={onElementClick}
-          onNodeDragStop={onNodeDragStop}
-          onNodeDragStart={onNodeDragStart}
-          onlyRenderVisibleNodes={onlyRenderVisibleNodes}
-          selectNodesOnDrag={selectNodesOnDrag}
-        />
-        <EdgeRenderer
-          width={width}
-          height={height}
-          edgeTypes={edgeTypes}
-          onElementClick={onElementClick}
-          connectionLineType={connectionLineType}
-          connectionLineStyle={connectionLineStyle}
-        />
+        <TransformWrapper
+          options={{
+            minScale: 0.5,
+            transformEnabled: t.transformEnabled,
+            disabled: t.disabled,
+            limitToWrapper: t.limitToWrapper,
+            limitToBounds: t.limitToBounds,
+            centerContent: true,
+          }}
+          pan={{
+            disabled: isDragging,
+            velocityEqualToMove: t.velocityEqualToMove,
+            velocity: t.enableVelocity,
+          }}
+          pinch={{ disabled: !t.pinchEnabled }}
+          doubleClick={{ disabled: !t.dbClickEnabled }}
+          wheel={{
+            wheelEnabled: t.enableWheel,
+            touchPadEnabled: t.enableTouchPadPinch,
+            step: 50,
+            limitsOnWheel: t.limitsOnWheel,
+          }}
+        >
+          <TransformComponent>
+            <NodeRenderer
+              nodeTypes={nodeTypes}
+              onElementClick={onElementClick}
+              onNodeDragStop={onNodeDragStop}
+              onNodeDragStart={onNodeDragStart}
+              onlyRenderVisibleNodes={onlyRenderVisibleNodes}
+              selectNodesOnDrag={selectNodesOnDrag}
+            />
+            <EdgeRenderer
+              width={width}
+              height={height}
+              edgeTypes={edgeTypes}
+              onElementClick={onElementClick}
+              connectionLineType={connectionLineType}
+              connectionLineStyle={connectionLineStyle}
+            />
+          </TransformComponent>
+        </TransformWrapper>
         <UserSelection selectionKeyPressed={selectionKeyPressed} isInteractive={isInteractive} />
         {nodesSelectionActive && <NodesSelection />}
-        <div className="react-flow__zoompane" onClick={onZoomPaneClick} ref={zoomPane} />
+        {/* <div className="react-flow__zoompane" onClick={onZoomPaneClick} ref={zoomPane} /> */}
       </div>
     );
   }

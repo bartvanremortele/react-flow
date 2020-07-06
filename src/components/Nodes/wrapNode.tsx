@@ -70,13 +70,14 @@ const onStart = ({
 interface OnDragParams {
   evt: MouseEvent | TouchEvent;
   setDragging: (isDragging: boolean) => void;
+  setIsDragging: (isDragging: boolean) => void;
   id: ElementId;
   offset: XYPosition;
   transform: Transform;
   updateNodePos: (params: NodePosUpdate) => void;
 }
 
-const onDrag = ({ evt, setDragging, id, offset, transform, updateNodePos }: OnDragParams): void => {
+const onDrag = ({ evt, setDragging, setIsDragging, id, offset, transform, updateNodePos }: OnDragParams): void => {
   const dragEvt = getMouseEvent(evt);
 
   const scaledClient = {
@@ -85,6 +86,7 @@ const onDrag = ({ evt, setDragging, id, offset, transform, updateNodePos }: OnDr
   };
 
   setDragging(true);
+  setIsDragging(true);
   updateNodePos({
     id,
     pos: {
@@ -97,6 +99,7 @@ const onDrag = ({ evt, setDragging, id, offset, transform, updateNodePos }: OnDr
 interface OnDragStopParams {
   isDragging: boolean;
   setDragging: (isDragging: boolean) => void;
+  setIsDragging: (isDragging: boolean) => void;
   id: ElementId;
   type: string;
   position: XYPosition;
@@ -114,6 +117,7 @@ const onStop = ({
   data,
   isDragging,
   setDragging,
+  setIsDragging,
   selectNodesOnDrag,
   onNodeDragStop,
   onClick,
@@ -137,6 +141,7 @@ const onStop = ({
   }
 
   setDragging(false);
+  setIsDragging(false);
 
   if (onNodeDragStop) {
     onNodeDragStop(node);
@@ -166,6 +171,7 @@ export default (NodeComponent: ComponentType<NodeComponentProps>) => {
       const updateNodeDimensions = useStoreActions((a) => a.updateNodeDimensions);
       const setSelectedElements = useStoreActions((a) => a.setSelectedElements);
       const updateNodePos = useStoreActions((a) => a.updateNodePos);
+      const setIsDragging = useStoreActions((a) => a.setIsDragging);
 
       const nodeElement = useRef<HTMLDivElement>(null);
       const [offset, setOffset] = useState({ x: 0, y: 0 });
@@ -176,7 +182,7 @@ export default (NodeComponent: ComponentType<NodeComponentProps>) => {
       const nodeStyle: CSSProperties = {
         zIndex: selected ? 10 : 3,
         transform: `translate(${xPos}px,${yPos}px)`,
-        pointerEvents: isInteractive ? 'all' : 'none',
+        // pointerEvents: isInteractive ? 'all' : 'none',
         ...style,
       };
 
@@ -218,7 +224,9 @@ export default (NodeComponent: ComponentType<NodeComponentProps>) => {
               setSelectedElements,
             })
           }
-          onDrag={(evt) => onDrag({ evt: evt as MouseEvent, setDragging, id, offset, transform, updateNodePos })}
+          onDrag={(evt) =>
+            onDrag({ evt: evt as MouseEvent, setDragging, setIsDragging, id, offset, transform, updateNodePos })
+          }
           onStop={() =>
             onStop({
               onNodeDragStop,
@@ -226,6 +234,7 @@ export default (NodeComponent: ComponentType<NodeComponentProps>) => {
               onClick,
               isDragging,
               setDragging,
+              setIsDragging,
               id,
               type,
               position,

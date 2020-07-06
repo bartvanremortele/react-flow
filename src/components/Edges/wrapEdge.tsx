@@ -41,7 +41,7 @@ export default (EdgeComponent: ComponentType<EdgeCompProps>) => {
       const setSelectedElements = useStoreActions((a) => a.setSelectedElements);
       const edgeClasses = cx('react-flow__edge', `react-flow__edge-${type}`, className, { selected, animated });
       const edgeGroupStyle: CSSProperties = {
-        pointerEvents: isInteractive ? 'all' : 'none',
+        // pointerEvents: isInteractive ? 'all' : 'none',
       };
       const onEdgeClick = (): void => {
         if (!isInteractive) {

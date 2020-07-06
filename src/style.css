@@ -2,7 +2,19 @@
   width: 100%;
   height: 100%;
   position: relative;
-  overflow: hidden;
+  /* overflow: hidden; */
+}
+
+.react-transform-component {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.react-transform-element {
+  position: relative;
+  width: 100%;
+  height: 100%;
 }
 
 .react-flow__renderer,
@@ -15,13 +27,13 @@
   left: 0;
 }
 
-.react-flow__zoompane {
+/* .react-flow__zoompane {
   z-index: 1;
 }
 
 .react-flow__selectionpane {
   z-index: 2;
-}
+} */
 
 .react-flow__selection {
   position: absolute;
