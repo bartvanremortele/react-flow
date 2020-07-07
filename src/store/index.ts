@@ -1,7 +1,7 @@
 import { createStore, Action, action, Thunk, thunk } from 'easy-peasy';
 import isEqual from 'fast-deep-equal';
 import { Selection as D3Selection, ZoomBehavior } from 'd3';
-import { zoom, zoomIdentity, zoomTransform } from 'd3-zoom';
+import { zoom, zoomIdentity } from 'd3-zoom';
 import { select } from 'd3-selection';
 
 import { getDimensions } from '../utils';
@@ -406,14 +406,9 @@ export const storeModel: StoreModel = {
   }),
 
   zoom: action((state, amount) => {
-    const { d3Zoom, d3Selection, transform } = state;
+    const { transform } = state;
     const nextZoom = transform[2] + amount;
-
-    if (d3Zoom && d3Selection) {
-      d3Zoom.scaleTo(d3Selection, nextZoom);
-      const transforms = zoomTransform(d3Selection.node() as Element);
-      state.transform = [transforms.x, transforms.y, transforms.k];
-    }
+    state.transform = [state.transform[0], state.transform[1], nextZoom];
   }),
 
   zoomIn: thunk((actions) => {
