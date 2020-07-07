@@ -1,5 +1,7 @@
 import React, { useMemo, CSSProperties, HTMLAttributes } from 'react';
 import cx from 'classnames';
+import { TransformWrapper } from 'react-zoom-pan-pinch';
+import { useStoreState } from '../../store/hooks';
 
 const nodeEnv: string = process.env.NODE_ENV as string;
 
@@ -86,38 +88,81 @@ const ReactFlow = ({
   maxZoom,
   defaultZoom,
 }: ReactFlowProps) => {
+  const isDragging = useStoreState((s) => s.isDragging);
   const nodeTypesParsed = useMemo(() => createNodeTypes(nodeTypes), []);
   const edgeTypesParsed = useMemo(() => createEdgeTypes(edgeTypes), []);
+
+  const t = {
+    type: true,
+    limitToBounds: false,
+    panningEnabled: true,
+    transformEnabled: true,
+    pinchEnabled: true,
+    limitToWrapper: false,
+    disabled: false,
+    dbClickEnabled: true,
+    lockAxisX: false,
+    lockAxisY: false,
+    velocityEqualToMove: true,
+    enableWheel: true,
+    enableTouchPadPinch: true,
+    enableVelocity: true,
+    limitsOnWheel: false,
+  };
 
   return (
     <div style={style} className={cx('react-flow', className)}>
       <Wrapper>
-        <GraphView
-          onLoad={onLoad}
-          onMove={onMove}
-          onElementClick={onElementClick}
-          onNodeDragStart={onNodeDragStart}
-          onNodeDragStop={onNodeDragStop}
-          nodeTypes={nodeTypesParsed}
-          edgeTypes={edgeTypesParsed}
-          connectionLineType={connectionLineType}
-          connectionLineStyle={connectionLineStyle}
-          selectionKeyCode={selectionKeyCode}
-          onElementsRemove={onElementsRemove}
-          deleteKeyCode={deleteKeyCode}
-          elements={elements}
-          onConnect={onConnect}
-          snapToGrid={snapToGrid}
-          snapGrid={snapGrid}
-          onlyRenderVisibleNodes={onlyRenderVisibleNodes}
-          isInteractive={isInteractive}
-          selectNodesOnDrag={selectNodesOnDrag}
-          minZoom={minZoom}
-          maxZoom={maxZoom}
-          defaultZoom={defaultZoom}
-        />
-        {onSelectionChange && <SelectionListener onSelectionChange={onSelectionChange} />}
-        {children}
+        <TransformWrapper
+          options={{
+            minScale: 0.5,
+            transformEnabled: t.transformEnabled,
+            disabled: t.disabled,
+            limitToWrapper: t.limitToWrapper,
+            limitToBounds: t.limitToBounds,
+            centerContent: true,
+          }}
+          pan={{
+            disabled: isDragging,
+            velocityEqualToMove: t.velocityEqualToMove,
+            velocity: t.enableVelocity,
+          }}
+          pinch={{ disabled: !t.pinchEnabled }}
+          doubleClick={{ disabled: !t.dbClickEnabled }}
+          wheel={{
+            wheelEnabled: t.enableWheel,
+            touchPadEnabled: t.enableTouchPadPinch,
+            step: 50,
+            limitsOnWheel: t.limitsOnWheel,
+          }}
+        >
+          <GraphView
+            onLoad={onLoad}
+            onMove={onMove}
+            onElementClick={onElementClick}
+            onNodeDragStart={onNodeDragStart}
+            onNodeDragStop={onNodeDragStop}
+            nodeTypes={nodeTypesParsed}
+            edgeTypes={edgeTypesParsed}
+            connectionLineType={connectionLineType}
+            connectionLineStyle={connectionLineStyle}
+            selectionKeyCode={selectionKeyCode}
+            onElementsRemove={onElementsRemove}
+            deleteKeyCode={deleteKeyCode}
+            elements={elements}
+            onConnect={onConnect}
+            snapToGrid={snapToGrid}
+            snapGrid={snapGrid}
+            onlyRenderVisibleNodes={onlyRenderVisibleNodes}
+            isInteractive={isInteractive}
+            selectNodesOnDrag={selectNodesOnDrag}
+            minZoom={minZoom}
+            maxZoom={maxZoom}
+            defaultZoom={defaultZoom}
+          />
+          {onSelectionChange && <SelectionListener onSelectionChange={onSelectionChange} />}
+          {children}
+        </TransformWrapper>
       </Wrapper>
     </div>
   );

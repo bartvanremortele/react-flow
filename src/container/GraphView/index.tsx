@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, memo, CSSProperties } from 'react';
 import classnames from 'classnames';
 import { ResizeObserver } from 'resize-observer';
-import { TransformWrapper, TransformComponent } from 'react-zoom-pan-pinch';
+import { TransformComponent } from 'react-zoom-pan-pinch';
 
 import { useStoreState, useStoreActions } from '../../store/hooks';
 import NodeRenderer from '../NodeRenderer';
@@ -174,70 +174,28 @@ const GraphView = memo(
     useGlobalKeyHandler({ onElementsRemove, deleteKeyCode });
     useElementUpdater(elements);
 
-    const t = {
-      type: true,
-      limitToBounds: false,
-      panningEnabled: true,
-      transformEnabled: true,
-      pinchEnabled: true,
-      limitToWrapper: false,
-      disabled: false,
-      dbClickEnabled: true,
-      lockAxisX: false,
-      lockAxisY: false,
-      velocityEqualToMove: true,
-      enableWheel: true,
-      enableTouchPadPinch: true,
-      enableVelocity: true,
-      limitsOnWheel: false,
-    };
-
     console.log('isPanningEnabled', !isDragging);
 
     return (
       <div className={rendererClasses} ref={rendererNode}>
-        <TransformWrapper
-          options={{
-            minScale: 0.5,
-            transformEnabled: t.transformEnabled,
-            disabled: t.disabled,
-            limitToWrapper: t.limitToWrapper,
-            limitToBounds: t.limitToBounds,
-            centerContent: true,
-          }}
-          pan={{
-            disabled: isDragging,
-            velocityEqualToMove: t.velocityEqualToMove,
-            velocity: t.enableVelocity,
-          }}
-          pinch={{ disabled: !t.pinchEnabled }}
-          doubleClick={{ disabled: !t.dbClickEnabled }}
-          wheel={{
-            wheelEnabled: t.enableWheel,
-            touchPadEnabled: t.enableTouchPadPinch,
-            step: 50,
-            limitsOnWheel: t.limitsOnWheel,
-          }}
-        >
-          <TransformComponent>
-            <NodeRenderer
-              nodeTypes={nodeTypes}
-              onElementClick={onElementClick}
-              onNodeDragStop={onNodeDragStop}
-              onNodeDragStart={onNodeDragStart}
-              onlyRenderVisibleNodes={onlyRenderVisibleNodes}
-              selectNodesOnDrag={selectNodesOnDrag}
-            />
-            <EdgeRenderer
-              width={width}
-              height={height}
-              edgeTypes={edgeTypes}
-              onElementClick={onElementClick}
-              connectionLineType={connectionLineType}
-              connectionLineStyle={connectionLineStyle}
-            />
-          </TransformComponent>
-        </TransformWrapper>
+        <TransformComponent>
+          <NodeRenderer
+            nodeTypes={nodeTypes}
+            onElementClick={onElementClick}
+            onNodeDragStop={onNodeDragStop}
+            onNodeDragStart={onNodeDragStart}
+            onlyRenderVisibleNodes={onlyRenderVisibleNodes}
+            selectNodesOnDrag={selectNodesOnDrag}
+          />
+          <EdgeRenderer
+            width={width}
+            height={height}
+            edgeTypes={edgeTypes}
+            onElementClick={onElementClick}
+            connectionLineType={connectionLineType}
+            connectionLineStyle={connectionLineStyle}
+          />
+        </TransformComponent>
         <UserSelection selectionKeyPressed={selectionKeyPressed} isInteractive={isInteractive} />
         {nodesSelectionActive && <NodesSelection />}
         {/* <div className="react-flow__zoompane" onClick={onZoomPaneClick} ref={zoomPane} /> */}
