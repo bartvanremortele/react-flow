@@ -9,7 +9,7 @@ import UserSelection from '../../components/UserSelection';
 import NodesSelection from '../../components/NodesSelection';
 import useKeyPress from '../../hooks/useKeyPress';
 // import useD3Zoom from '../../hooks/useD3Zoom';
-import usePanZoom from 'use-pan-and-zoom';
+import usePanZoom from '../../hooks/usePanAndZoom';
 import useGlobalKeyHandler from '../../hooks/useGlobalKeyHandler';
 import useElementUpdater from '../../hooks/useElementUpdater';
 import { getDimensions } from '../../utils';
@@ -145,7 +145,11 @@ const GraphView = memo(
 
     // useD3Zoom({ zoomPane, onMove, selectionKeyPressed });
 
-    const { transform, panZoomHandlers, setContainer } = usePanZoom({ zoomSensitivity: 0.01 });
+    const { transform, transformStyle, panZoomHandlers, setContainer } = usePanZoom({ zoomSensitivity: 0.01 });
+
+    useEffect(() => {
+      updateTransform({ x: transform.x, y: transform.y, k: transform.zoom });
+    }, [transform]);
 
     useEffect(() => {
       if (d3Initialised && onLoad) {
@@ -174,6 +178,8 @@ const GraphView = memo(
     useGlobalKeyHandler({ onElementsRemove, deleteKeyCode });
     useElementUpdater(elements);
 
+    console.log('transform', transform);
+
     return (
       <div className={rendererClasses} ref={rendererNode}>
         <div
@@ -181,7 +187,15 @@ const GraphView = memo(
           {...panZoomHandlers}
           style={{ position: 'absolute', width: '100%', height: '100%' }}
         >
-          <div style={{ transform, position: 'absolute', width: '100%', height: '100%' }}>
+          <div
+            style={{
+              transform: transformStyle,
+              position: 'absolute',
+              width: '100%',
+              height: '100%',
+              transformOrigin: '0% 0%',
+            }}
+          >
             <NodeRenderer
               nodeTypes={nodeTypes}
               onElementClick={onElementClick}
