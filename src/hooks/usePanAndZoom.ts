@@ -131,7 +131,7 @@ const usePanZoom = ({
 
   const movePanZoom = useCallback(
     (pointers) => {
-      if (isPanning()) {
+      if (isPanning() && enablePan) {
         wasPanning.current = true;
 
         const prevPointers = prev.current;
@@ -156,7 +156,7 @@ const usePanZoom = ({
         onPan(pointers);
       }
     },
-    [isPanning, onPan, minX, maxX, minY, maxY]
+    [enablePan, isPanning, onPan, minX, maxX, minY, maxY]
   );
 
   const endPanZoom = useCallback(() => {

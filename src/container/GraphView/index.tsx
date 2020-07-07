@@ -83,6 +83,7 @@ const GraphView = memo(
     const nodesSelectionActive = useStoreState((s) => s.nodesSelectionActive);
     const updateSize = useStoreActions((actions) => actions.updateSize);
     // const setNodesSelection = useStoreActions((actions) => actions.setNodesSelection);
+    const isDragging = useStoreState((s) => s.isDragging);
     const setOnConnect = useStoreActions((a) => a.setOnConnect);
     const setSnapGrid = useStoreActions((actions) => actions.setSnapGrid);
     const setInteractive = useStoreActions((actions) => actions.setInteractive);
@@ -145,7 +146,10 @@ const GraphView = memo(
 
     // useD3Zoom({ zoomPane, onMove, selectionKeyPressed });
 
-    const { transform, transformStyle, panZoomHandlers, setContainer } = usePanZoom({ zoomSensitivity: 0.01 });
+    const { transform, transformStyle, panZoomHandlers, setContainer } = usePanZoom({
+      zoomSensitivity: 0.01,
+      enablePan: !isDragging,
+    });
 
     useEffect(() => {
       updateTransform({ x: transform.x, y: transform.y, k: transform.zoom });
@@ -177,8 +181,6 @@ const GraphView = memo(
 
     useGlobalKeyHandler({ onElementsRemove, deleteKeyCode });
     useElementUpdater(elements);
-
-    console.log('transform', transform);
 
     return (
       <div className={rendererClasses} ref={rendererNode}>

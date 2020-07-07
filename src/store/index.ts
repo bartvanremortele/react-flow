@@ -66,6 +66,7 @@ export interface StoreModel {
   minZoom: number;
   maxZoom: number;
 
+  isDragging: boolean;
   nodesSelectionActive: boolean;
   selectionActive: boolean;
   selection: SelectionRect | null;
@@ -94,6 +95,8 @@ export interface StoreModel {
   updateNodeDimensions: Action<StoreModel, NodeDimensionUpdate>;
 
   updateNodePos: Action<StoreModel, NodePosUpdate>;
+
+  setIsDragging: Action<StoreModel, boolean>;
 
   setSelection: Action<StoreModel, boolean>;
 
@@ -142,6 +145,7 @@ export const storeModel: StoreModel = {
   minZoom: 0.5,
   maxZoom: 2,
 
+  isDragging: false,
   nodesSelectionActive: false,
   selectionActive: false,
   selection: null,
@@ -229,6 +233,10 @@ export const storeModel: StoreModel = {
         };
       }
     });
+  }),
+
+  setIsDragging: action((state, flag) => {
+    state.isDragging = flag;
   }),
 
   setUserSelection: action((state, mousePos) => {
