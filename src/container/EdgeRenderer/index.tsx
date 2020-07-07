@@ -201,12 +201,12 @@ const EdgeRenderer = memo((props: EdgeRendererProps) => {
   if (!width) {
     return null;
   }
-
+  const transformStyle = `translate(${tX},${tY}) scale(${tScale})`;
   const renderConnectionLine = connectionNodeId && connectionHandleType;
 
   return (
     <svg width={width} height={height} className="react-flow__edges">
-      <g>
+      <g transform={transformStyle}>
         {edges.map((e: Edge) => renderEdge(e, props, nodes, selectedElements, isInteractive))}
         {renderConnectionLine && (
           <ConnectionLine

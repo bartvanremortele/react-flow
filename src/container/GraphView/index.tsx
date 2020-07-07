@@ -146,7 +146,7 @@ const GraphView = memo(
 
     // useD3Zoom({ zoomPane, onMove, selectionKeyPressed });
 
-    const { transform, transformStyle, panZoomHandlers, setContainer } = usePanZoom({
+    const { transform, panZoomHandlers, setContainer } = usePanZoom({
       zoomSensitivity: 0.01,
       enablePan: !isDragging,
     });
@@ -191,7 +191,7 @@ const GraphView = memo(
         >
           <div
             style={{
-              transform: transformStyle,
+              // transform: transformStyle,
               position: 'absolute',
               width: '100%',
               height: '100%',

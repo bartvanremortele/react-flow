@@ -58,13 +58,16 @@ const NodeRenderer = memo(({ onlyRenderVisibleNodes = true, ...props }: NodeRend
   const width = useStoreState((s) => s.width);
   const height = useStoreState((s) => s.height);
   const isInteractive = useStoreState((s) => s.isInteractive);
-
+  const [tX, tY, tScale] = transform;
+  const transformStyle = {
+    transform: `translate(${tX}px,${tY}px) scale(${tScale})`,
+  };
   const renderNodes = onlyRenderVisibleNodes
     ? getNodesInside(nodes, { x: 0, y: 0, width, height }, transform, true)
     : nodes;
 
   return (
-    <div className="react-flow__nodes">
+    <div className="react-flow__nodes" style={transformStyle}>
       {renderNodes.map((node) => renderNode(node, props, transform, selectedElements, isInteractive))}
     </div>
   );
